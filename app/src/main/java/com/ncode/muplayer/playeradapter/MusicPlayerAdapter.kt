@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ncode.muplayer.R
 import com.ncode.muplayer.ClickedItem.OnItemClicked
+import com.ncode.muplayer.models.MusicPlayerModel
 import com.ncode.muplayer.navigationhost.NavigationHost
 import com.ncode.muplayer.ui.MusicPlayerFragment
 import kotlinx.android.synthetic.main.song_card_view.view.*
@@ -16,7 +17,7 @@ import kotlinx.android.synthetic.main.song_card_view.view.*
 class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.Adapter<MusicPlayerAdapter.PlayerViewHolder>() {
 
     private val inflater = LayoutInflater.from(context)
-
+    private  var songsList = emptyList<MusicPlayerModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
 
@@ -24,14 +25,28 @@ class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.A
         return PlayerViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {}
+    override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
 
-    override fun getItemCount() = 20
+        val current = songsList[position]
+        holder.titleName.text = current.songName
+        holder.artistName.text = current.artistInfo
+    }
+
+    override fun getItemCount() = songsList.size
+
+    fun setSize(songs : List<MusicPlayerModel>) {
+        this.songsList = songs
+        notifyDataSetChanged()
+
+    }
+
 
 
     class PlayerViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
         val songCard = itemView.song_card
+        val titleName = itemView.song_name
+        val artistName = itemView.artist_name
 
         init {
             songCard.setOnClickListener(this)
