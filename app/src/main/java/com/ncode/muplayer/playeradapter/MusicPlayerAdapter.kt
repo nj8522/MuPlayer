@@ -1,0 +1,52 @@
+package com.ncode.muplayer.playeradapter
+
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.ncode.muplayer.R
+import com.ncode.muplayer.ClickedItem.OnItemClicked
+import com.ncode.muplayer.navigationhost.NavigationHost
+import com.ncode.muplayer.ui.MusicPlayerFragment
+import kotlinx.android.synthetic.main.song_card_view.view.*
+
+class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.Adapter<MusicPlayerAdapter.PlayerViewHolder>() {
+
+    private val inflater = LayoutInflater.from(context)
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
+
+        val view = inflater.inflate(R.layout.song_card_view, parent, false)
+        return PlayerViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {}
+
+    override fun getItemCount() = 20
+
+
+    class PlayerViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+
+        val songCard = itemView.song_card
+
+        init {
+            songCard.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+
+            val bundle = Bundle()
+            bundle.putInt("position", adapterPosition)
+            val musicPlayerFragment = MusicPlayerFragment()
+            musicPlayerFragment.arguments = bundle
+            (v?.context as NavigationHost).navigateTo(musicPlayerFragment, true)
+
+        }
+
+
+    }
+}
