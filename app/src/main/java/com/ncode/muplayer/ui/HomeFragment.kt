@@ -46,9 +46,14 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
 
         playerViewModel = ViewModelProvider(this).get(PlayerViewModel :: class.java)
-        playerViewModel.getAllSongsFromProvider()
-        playerViewModel.allSongs.observe(viewLifecycleOwner, {songs ->
-            songs.let { adapter.setSize(it) }
+        playerViewModel.allSongs.observe(viewLifecycleOwner, { songs ->
+            songs.let {
+                if (it.isNotEmpty()) {
+                    adapter.setSize(it)
+                } else {
+                    playerViewModel.getAllSongsFromProvider()
+                }
+            }
         })
     }
 

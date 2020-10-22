@@ -10,6 +10,7 @@ import com.ncode.muplayer.provider.MediaPlayerProvider
 import com.ncode.muplayer.repository.MusicPlayerRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class PlayerViewModel (application: Application) : AndroidViewModel(application) {
 
@@ -27,9 +28,6 @@ class PlayerViewModel (application: Application) : AndroidViewModel(application)
         repository.insert(musicPlayerModel)
     }
 
-    fun getSizeOfDataBase() : Int {
-        return  allSongs.value!!.size
-    }
 
     fun getAllSongsFromProvider() {
         val mediaPlayerProvider = MediaPlayerProvider()

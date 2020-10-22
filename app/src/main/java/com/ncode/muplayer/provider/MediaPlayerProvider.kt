@@ -8,12 +8,9 @@ import com.ncode.muplayer.viewModel.PlayerViewModel
 
 class MediaPlayerProvider {
 
-    private val songDataList : MutableList<MusicPlayerModel> = mutableListOf()
 
 
-     fun retrieveSongFromProvider(application: Application, playerViewModel: PlayerViewModel) {
-
-         var songs : MusicPlayerModel? = null
+    fun retrieveSongFromProvider(application: Application, playerViewModel: PlayerViewModel) {
 
         val resolver : ContentResolver = application.contentResolver
 
@@ -21,8 +18,6 @@ class MediaPlayerProvider {
         val selection = MediaStore.Audio.Media.IS_MUSIC +"!= 0"
         val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.ArtistColumns.ARTIST)
         val cursor = resolver.query(music, null, selection, null, null)
-
-
 
         if(cursor!!.moveToFirst()) {
 
@@ -36,14 +31,10 @@ class MediaPlayerProvider {
                 playerViewModel.insert(MusicPlayerModel(null, name, artist, album, path))
 
             } while (cursor.moveToNext())
-
-
         }
 
         cursor.close()
-
-
-    }
+     }
 
 
 
