@@ -7,6 +7,11 @@
     <string name="song_name">Name</string>
     <string name="song_artist">Artist</string>
     <string name="current_song_image">Current Song Image</string>
+    <string name="this_button_is_to_play_and_pause_the_song">This button is to play and Pause the Song</string>
+    <string name="the_button_is_used_to_the_previous_song">The button is used to the previous song</string>
+    <string name="this_button_is_used_to_go_to_the_next_song">This button is used to go to the next song</string>
 
-
+    //Notification
+    <string name="notification_channel_name">MuplayerName</string>
+    <string name="notification_channel_description">This a Media Player.</string>
 </resources>

@@ -21,60 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"
-        app:layout_constraintVertical_bias="0.0">
-
-        <ImageButton
-            android:id="@+id/play_pause_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:background="@color/playerBackgroundColor"
-            android:src="@drawable/play_button" />
-
-        <ImageButton
-            android:id="@+id/skip_previous"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="12dp"
-            android:layout_toStartOf="@+id/play_pause_button"
-            android:background="@color/playerBackgroundColor"
-            android:src="@drawable/skip_previous" />
-
-        <ImageButton
-            android:id="@+id/skip_next"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="12dp"
-            android:layout_toEndOf="@+id/play_pause_button"
-            android:background="@color/playerBackgroundColor"
-            android:src="@drawable/skip_next" />
-    </RelativeLayout>
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="28dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="216dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.508"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/current_song_image" />
 
     <TextView
         android:id="@+id/player_song_name"
@@ -103,6 +49,63 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_song_name" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="216dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/current_song_image" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:layout_constraintVertical_bias="0.0">
+
+        <Button
+            android:id="@+id/play_pause_button"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/play_button"
+            android:contentDescription="@string/this_button_is_to_play_and_pause_the_song" />
+
+        <ImageButton
+            android:id="@+id/skip_previous"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:layout_toStartOf="@+id/play_pause_button"
+            android:background="@color/playerBackgroundColor"
+            android:src="@drawable/skip_previous"
+            android:contentDescription="@string/the_button_is_used_to_the_previous_song"/>
+
+        <ImageButton
+            android:id="@+id/skip_next"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/play_pause_button"
+            android:background="@color/playerBackgroundColor"
+            android:src="@drawable/skip_next"
+            android:contentDescription="@string/this_button_is_used_to_go_to_the_next_song"/>
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
