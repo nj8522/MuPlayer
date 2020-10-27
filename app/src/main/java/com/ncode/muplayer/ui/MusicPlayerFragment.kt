@@ -14,11 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.ncode.muplayer.R
 import com.ncode.muplayer.models.MusicPlayerModel
+import com.ncode.muplayer.presenter.MediaPlayerPresenter
 import com.ncode.muplayer.services.MediaPlayerServices
-import com.ncode.muplayer.viewModel.PlayerViewModel
 import kotlinx.android.synthetic.main.fragment_music_player.*
 import java.lang.Exception
 
@@ -27,19 +29,26 @@ class MusicPlayerFragment : Fragment() {
 
     private val TAG = "pos"
 
-    private lateinit var playerViewModel : PlayerViewModel
     private lateinit var mediaTackPath : String
     private var position : Int = 0
 
     //Services
     var mediaService : MediaPlayerServices? = null
     var isBounded = false
-    var playPause = false
+    private var playPauseAction = false
 
+
+    //Song Shelf
+    private var musicRack : List<MusicPlayerModel> = listOf()
+
+    //Presenter
+    lateinit var mediaPlayerPresenter: MediaPlayerPresenter
 
     //UI
     private lateinit var playPauseButton : Button
     private lateinit var playerSeekBar: SeekBar
+    private lateinit var songName : TextView
+    private lateinit var artistName : TextView
 
     private val setUpConnectionWithService = object : ServiceConnection{
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
@@ -60,8 +69,12 @@ class MusicPlayerFragment : Fragment() {
         position = arguments?.getInt("position")!!
         Log.i(TAG, position.toString())
 
+       mediaPlayerPresenter = MediaPlayerPresenter(context!!)
+       musicRack = mediaPlayerPresenter.getAllSongs()
+
+
         val intent = Intent(context, MediaPlayerServices :: class.java)
-        playPause = activity!!.bindService(intent, setUpConnectionWithService, Context.BIND_AUTO_CREATE)
+        playPauseAction = activity!!.bindService(intent, setUpConnectionWithService, Context.BIND_AUTO_CREATE)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,45 +85,67 @@ class MusicPlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        playerViewModel = ViewModelProvider(this).get(PlayerViewModel :: class.java)
-        playerViewModel.allSongs.observe(viewLifecycleOwner, {songs ->
-            songs?.let { getAllSongsList(it) }
-        })
 
         //UI
         playPauseButton = view.findViewById(R.id.play_pause_button)
         playerSeekBar = view.findViewById(R.id.seekBar)
+        songName = view.findViewById(R.id.player_song_name)
+        artistName = view.findViewById(R.id.player_artist_name)
 
 
         //Action
         playPauseButton.setOnClickListener {
             changeStateOfThePlayer()
         }
+
+        skip_previous.setOnClickListener {
+            playPreviousSong()
+        }
+
+        skip_next.setOnClickListener {
+            playNextSong()
+        }
+
+         getAllSongsList(musicRack)
     }
 
     private fun getAllSongsList(songsPlayList : List<MusicPlayerModel>) {
-        Log.i(TAG, "getAllSongsList: ${songsPlayList.size}")
+
+        //musicRack  = songsPlayList
         val currentSong = songsPlayList[position]
-        player_song_name.text = currentSong.songName
-        player_artist_name.text = currentSong.artistInfo
+        Log.i(TAG, "getAllSongsList: ${currentSong.songName}")
+
+        songName.text = currentSong.songName
+        artistName.text = currentSong.artistInfo
         mediaTackPath = currentSong.path
     }
 
+    private fun tackCurrentSong() {}
+
     private fun changeStateOfThePlayer() {
 
-        if(playPause) {
-            playPause = false
+        if(playPauseAction) {
+            playPauseAction = false
             playPauseButton.setBackgroundResource(R.drawable.pause_button)
             mediaService?.playMusic(mediaTackPath)
             activity?.startService(startMusicPlayerService())
 
         } else {
-            playPause = true
+            playPauseAction = true
             playPauseButton.setBackgroundResource(R.drawable.play_button)
             mediaService?.pauseMusic()
         }
+
         initializeSeekBar()
         trackSeekBar()
+    }
+
+    private fun playPreviousSong() {
+        Toast.makeText(context, "Previous", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun playNextSong() {
+        Toast.makeText(context, "Next", Toast.LENGTH_SHORT).show()
     }
 
     private fun trackSeekBar() {
@@ -145,13 +180,19 @@ class MusicPlayerFragment : Fragment() {
     }
 
     private fun startMusicPlayerService() : Intent {
-        return Intent(context, MediaPlayerServices :: class.java)
+        val serviceIntent = Intent(context, MediaPlayerServices :: class.java)
+        return serviceIntent
+    }
+
+    override fun onStop() {
+        super.onStop()
+        activity?.unbindService(setUpConnectionWithService)
+        isBounded = false
     }
 
     override fun onDestroy() {
         super.onDestroy()
         activity?.stopService(startMusicPlayerService())
-        mediaService = null
     }
 
 }

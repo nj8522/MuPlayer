@@ -2,22 +2,37 @@ package com.ncode.muplayer.provider
 
 import android.app.Application
 import android.content.ContentResolver
+import android.content.Context
+import android.database.Cursor
 import android.provider.MediaStore
+import android.util.Log
+import com.ncode.muplayer.contract.MediaPlayerContract
 import com.ncode.muplayer.models.MusicPlayerModel
-import com.ncode.muplayer.viewModel.PlayerViewModel
-
-class MediaPlayerProvider {
-
+import java.lang.Exception
+import kotlin.math.log
 
 
-    fun retrieveSongFromProvider(application: Application, playerViewModel: PlayerViewModel) {
+class MediaPlayerProvider : MediaPlayerContract.DataFromProvider {
 
-        val resolver : ContentResolver = application.contentResolver
+    private val TAG = "cursor"
+
+
+    override fun retrieveSongFromProvider(context: Context) : MutableList<MusicPlayerModel> {
+
+        val songListDataFromProvider = mutableListOf<MusicPlayerModel>()
+
+        val resolver : ContentResolver = context.contentResolver
 
         val music = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection = MediaStore.Audio.Media.IS_MUSIC +"!= 0"
-        val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.ArtistColumns.ARTIST)
-        val cursor = resolver.query(music, null, selection, null, null)
+        //val projection = arrayOf(MediaStore.Audio.AudioColumns.DATA, MediaStore.Audio.AudioColumns.TITLE, MediaStore.Audio.AudioColumns.ALBUM, MediaStore.Audio.ArtistColumns.ARTIST)
+        var cursor : Cursor? = null
+        try {
+            cursor = resolver.query(music, null, selection, null, null)
+        } catch (e : Exception) {
+            Log.i(TAG, "retrieveSongFromProvider: ${e.message.toString()}")
+        }
+
 
         if(cursor!!.moveToFirst()) {
 
@@ -28,12 +43,16 @@ class MediaPlayerProvider {
                 val album = cursor.getString( cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
                 val artist = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
 
-                playerViewModel.insert(MusicPlayerModel(null, name, artist, album, path))
+                Log.i("provider", "$name, $path")
+
+                songListDataFromProvider.add(MusicPlayerModel(name, artist, album, path))
 
             } while (cursor.moveToNext())
         }
 
         cursor.close()
+
+        return  songListDataFromProvider
      }
 
 

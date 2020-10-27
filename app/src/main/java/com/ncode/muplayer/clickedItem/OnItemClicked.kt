@@ -1,4 +1,4 @@
-package com.ncode.muplayer.ClickedItem
+package com.ncode.muplayer.clickedItem
 
 interface OnItemClicked {
 

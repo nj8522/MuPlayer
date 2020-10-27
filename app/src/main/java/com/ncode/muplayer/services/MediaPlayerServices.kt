@@ -10,7 +10,6 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.ncode.muplayer.R
-import com.ncode.muplayer.foreground.NotificationChannelForMuPlayer
 import com.ncode.muplayer.ui.MusicPlayerFragment
 
 class MediaPlayerServices : Service() {
@@ -49,12 +48,10 @@ class MediaPlayerServices : Service() {
 
     fun pauseMusic() {
 
-       if(mediaPlayer.isPlaying) {
+        if(mediaPlayer.isPlaying) {
            mediaPlayer.pause()
-
        }
-
-   }
+    }
 
     fun mediaPlayerSeekTo(position : Int) {
         mediaPlayer.seekTo(position)
@@ -76,17 +73,15 @@ class MediaPlayerServices : Service() {
         notification = buildNavigationNotifier()
         startForeground(1245, notification)
 
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
-    private fun buildPendingIntent() : PendingIntent{
-
-        return Intent(this, MusicPlayerFragment :: class.java).let { notificationIntent ->
-             PendingIntent.getActivity(this, 0, notificationIntent, 0)
-        }
-    }
 
     private fun buildNavigationNotifier() : Notification? {
+
+       val pendingIntent = Intent(this, MusicPlayerFragment :: class.java).let { notificationIntent ->
+           PendingIntent.getActivity(this, 0, notificationIntent, 0)
+       }
 
         notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -98,7 +93,7 @@ class MediaPlayerServices : Service() {
                 .setShowActionsInCompactView(1 /* #1: pause button \*/))
             .setContentTitle("MuPlayer")
             .setContentText("Playing")
-            .setContentIntent(buildPendingIntent())
+            .setContentIntent(pendingIntent)
             .build()
 
       return notification

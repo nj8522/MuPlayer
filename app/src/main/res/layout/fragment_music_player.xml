@@ -78,32 +78,30 @@
 
         <Button
             android:id="@+id/play_pause_button"
-            android:layout_width="46dp"
-            android:layout_height="46dp"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
             android:layout_centerInParent="true"
             android:background="@drawable/play_button"
             android:contentDescription="@string/this_button_is_to_play_and_pause_the_song" />
 
-        <ImageButton
+        <Button
             android:id="@+id/skip_previous"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_centerVertical="true"
             android:layout_marginEnd="12dp"
             android:layout_toStartOf="@+id/play_pause_button"
-            android:background="@color/playerBackgroundColor"
-            android:src="@drawable/skip_previous"
+            android:background="@drawable/skip_previous"
             android:contentDescription="@string/the_button_is_used_to_the_previous_song"/>
 
-        <ImageButton
+        <Button
             android:id="@+id/skip_next"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="12dp"
             android:layout_toEndOf="@+id/play_pause_button"
-            android:background="@color/playerBackgroundColor"
-            android:src="@drawable/skip_next"
+            android:background="@drawable/skip_next"
             android:contentDescription="@string/this_button_is_used_to_go_to_the_next_song"/>
     </RelativeLayout>
 

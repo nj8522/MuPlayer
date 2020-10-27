@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ncode.muplayer.R
-import com.ncode.muplayer.ClickedItem.OnItemClicked
 import com.ncode.muplayer.models.MusicPlayerModel
 import com.ncode.muplayer.navigationhost.NavigationHost
 import com.ncode.muplayer.ui.MusicPlayerFragment
@@ -17,7 +16,13 @@ import kotlinx.android.synthetic.main.song_card_view.view.*
 class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.Adapter<MusicPlayerAdapter.PlayerViewHolder>() {
 
     private val inflater = LayoutInflater.from(context)
-    private  var songsList = emptyList<MusicPlayerModel>()
+    private  var songsList : MutableList<MusicPlayerModel> = mutableListOf()
+
+    fun setSize(songs : List<MusicPlayerModel>) {
+        this.songsList = songs as MutableList<MusicPlayerModel>
+        notifyDataSetChanged()
+
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
 
@@ -27,18 +32,18 @@ class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.A
 
     override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
 
+        Log.i("adapter", songsList.size.toString())
+
         val current = songsList[position]
+
         holder.titleName.text = current.songName
+        Log.i("adapter", current.songName)
+
         holder.artistName.text = current.artistInfo
+        Log.i("adapter", current.artistInfo)
     }
 
     override fun getItemCount() = songsList.size
-
-    fun setSize(songs : List<MusicPlayerModel>) {
-        this.songsList = songs
-        notifyDataSetChanged()
-
-    }
 
 
 
@@ -59,9 +64,6 @@ class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.A
             val musicPlayerFragment = MusicPlayerFragment()
             musicPlayerFragment.arguments = bundle
             (v?.context as NavigationHost).navigateTo(musicPlayerFragment, true)
-
         }
-
-
     }
 }
