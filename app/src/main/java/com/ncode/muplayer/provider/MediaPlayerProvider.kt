@@ -12,12 +12,12 @@ import java.lang.Exception
 import kotlin.math.log
 
 
-class MediaPlayerProvider : MediaPlayerContract.DataFromProvider {
+class MediaPlayerProvider(var context: Context)  {
 
     private val TAG = "cursor"
 
 
-    override fun retrieveSongFromProvider(context: Context) : MutableList<MusicPlayerModel> {
+    fun songsFromPhoneProvider() : MutableList<MusicPlayerModel> {
 
         val songListDataFromProvider = mutableListOf<MusicPlayerModel>()
 

@@ -7,34 +7,16 @@ import com.ncode.muplayer.models.MusicPlayerModel
 
 interface MediaPlayerContract {
 
-     interface PlayerView {
-         fun view()
-     }
-
-    interface PlayerModel {
-        fun model()
-    }
-
     interface PlayerPresenter {
 
         fun getSize() : Boolean
-        fun getSongFromProvider()
         fun getAllSongs() : MutableList<MusicPlayerModel>
+        fun retrieveSongFromProvider()
     }
 
-    interface PlayerQuery {
-        fun databaseQuery(): MutableList<MusicPlayerModel>
-        fun getTotalNumberOfSongs() : Int
+    interface MediaPlayerView {
+        fun initView()
+        fun updateAdapter()
     }
 
-    interface ConvertDataToObjects {
-        fun convertToObject(songsDataList : MutableList<MusicPlayerModel>, context: Context)
-    }
-
-    interface DataFromProvider {
-        fun retrieveSongFromProvider(context: Context) : MutableList<MusicPlayerModel>
-    }
-
-
-
-}
+ }

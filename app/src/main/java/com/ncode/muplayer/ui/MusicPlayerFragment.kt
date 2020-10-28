@@ -184,11 +184,7 @@ class MusicPlayerFragment : Fragment() {
         return serviceIntent
     }
 
-    override fun onStop() {
-        super.onStop()
-        activity?.unbindService(setUpConnectionWithService)
-        isBounded = false
-    }
+
 
     override fun onDestroy() {
         super.onDestroy()

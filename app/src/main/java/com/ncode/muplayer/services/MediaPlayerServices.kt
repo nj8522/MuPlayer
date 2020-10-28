@@ -76,7 +76,6 @@ class MediaPlayerServices : Service() {
         return START_STICKY
     }
 
-
     private fun buildNavigationNotifier() : Notification? {
 
        val pendingIntent = Intent(this, MusicPlayerFragment :: class.java).let { notificationIntent ->
@@ -102,7 +101,6 @@ class MediaPlayerServices : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer.stop()
         mediaPlayer.release()
     }
 

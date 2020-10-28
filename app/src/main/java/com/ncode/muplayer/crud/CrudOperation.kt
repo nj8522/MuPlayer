@@ -12,20 +12,10 @@ import com.ncode.muplayer.models.MusicPlayerModel
 import com.ncode.muplayer.provider.MediaPlayerContentDatabase
 import java.lang.Exception
 
-class CrudOperation (val context : Context) : MediaPlayerContract.PlayerQuery {
-
-    lateinit var db : SQLiteDatabase
-
-    val TABLE_NAME = "PlayerDataBase"
-    val ID = "_id"
-    val SONG_NAME = "Song"
-    val ARTIST_NAME = "Artist"
-    val ALBUM_NAME = "Album"
-    val PATH = "path"
+class CrudOperation (val context : Context) {
 
 
-    override fun databaseQuery(): MutableList<MusicPlayerModel> {
-
+    fun mediaQuery(): MutableList<MusicPlayerModel> {
 
         val allSongsDataFromLocalDb : MutableList<MusicPlayerModel> = mutableListOf()
 
@@ -65,7 +55,7 @@ class CrudOperation (val context : Context) : MediaPlayerContract.PlayerQuery {
 
     }
 
-    override fun getTotalNumberOfSongs(): Int {
+    fun getTotalNumberOfSongs(): Int {
 
         val cursor : Cursor? = context.contentResolver.query(MediaPlayerContentDatabase.CONTENT_URI,
             null,

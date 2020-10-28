@@ -11,18 +11,22 @@ import java.lang.Exception
 
 class MediaPlayerPresenter(val context : Context) :  MediaPlayerContract.PlayerPresenter{
 
-    private val query : MediaPlayerContract.PlayerQuery = CrudOperation(context)
-    private val mediaPlayerProvider : MediaPlayerContract.DataFromProvider = MediaPlayerProvider()
-    private val convertDataToObjects : MediaPlayerContract.ConvertDataToObjects = ConvertProviderDataToObjects()
+
+    private val query  = CrudOperation(context)
+    private val mediaPlayerProvider = MediaPlayerProvider(context)
+    private val convertDataToObjects = ConvertProviderDataToObjects(context)
+
 
     private val TAG = "size"
 
-    override fun getSongFromProvider() {
-        val songList = mediaPlayerProvider.retrieveSongFromProvider(context)
-        convertDataToObjects.convertToObject(songList, context)
+
+
+    override fun retrieveSongFromProvider() {
+        val providerData = mediaPlayerProvider.songsFromPhoneProvider()
+        convertDataToObjects.convertToObject(providerData)
     }
 
-    override fun getAllSongs() = query.databaseQuery()
+    override fun getAllSongs() = query.mediaQuery()
 
     override fun getSize() : Boolean {
       

@@ -12,7 +12,7 @@ import java.lang.Exception
 import java.security.AccessControlContext
 import kotlin.math.log
 
-class ConvertProviderDataToObjects : MediaPlayerContract.ConvertDataToObjects {
+class ConvertProviderDataToObjects(var context: Context) {
 
 
     val SONG_NAME = "Song"
@@ -22,7 +22,7 @@ class ConvertProviderDataToObjects : MediaPlayerContract.ConvertDataToObjects {
 
     val contentValue = ContentValues()
 
-    override fun convertToObject(songsDataList: MutableList<MusicPlayerModel>, context: Context) {
+    fun convertToObject(songsDataList: MutableList<MusicPlayerModel>) {
 
         val resolver = context.contentResolver
 
@@ -41,8 +41,6 @@ class ConvertProviderDataToObjects : MediaPlayerContract.ConvertDataToObjects {
         } catch (e : Exception) {
             Log.i("content", e.message.toString())
         }
-
-
 
         Log.i("content", "Done")
     }
