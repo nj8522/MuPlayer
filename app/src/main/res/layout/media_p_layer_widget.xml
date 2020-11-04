@@ -1,0 +1,66 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/appWidgetBackgroundColor"
+    android:padding="@dimen/widget_margin"
+    android:orientation="vertical"
+    android:theme="@style/ThemeOverlay.MuPlayer.AppWidgetContainer">
+
+    <TextView
+        android:id="@+id/widget_song_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/song_name"
+        android:gravity="center"
+        android:textSize="28sp"
+        android:padding="4dp"
+        android:layout_marginBottom="2dp"
+        android:textColor="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/widget_song_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/song_artist"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:padding="4dp"
+        android:layout_marginBottom="2dp"
+        android:textColor="@color/colorAccent"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/widget_play_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/skip_previous"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="52dp"
+            android:background="?attr/appWidgetBackgroundColor"/>
+
+        <ImageButton
+            android:id="@+id/widget_play_pause"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/play_arrow"
+            android:background="?attr/appWidgetBackgroundColor"/>
+
+        <ImageButton
+            android:id="@+id/widget_play_next"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="52dp"
+            android:src="@drawable/skip_next"
+            android:background="?attr/appWidgetBackgroundColor"/>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

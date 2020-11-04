@@ -50,7 +50,7 @@ class MusicPlayerFragment : Fragment() {
     private lateinit var songName : TextView
     private lateinit var artistName : TextView
 
-    private val setUpConnectionWithService = object : ServiceConnection{
+    private val setUpConnectionWithService = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerServices.MediaPlayerBinder
             mediaService = binder.getBinderData()
@@ -162,16 +162,14 @@ class MusicPlayerFragment : Fragment() {
 
     private fun initializeSeekBar() {
 
-        val mediaPlayer = mediaService!!.trackSeekBar()
-        playerSeekBar.max = mediaPlayer.duration
-
+        playerSeekBar.max = mediaService!!.trackMaxLength()
 
         val handler = Handler()
         handler.postDelayed(object  : Runnable{
             override fun run() {
                 try {
-                   playerSeekBar.progress = mediaPlayer.currentPosition
-                   handler.postDelayed(this, 100)
+                   playerSeekBar.progress = mediaService!!.trackSeekBar()
+                   handler.postDelayed(this, 500)
                 }catch (e : Exception) {
                    playerSeekBar.progress = 0
                 }
@@ -180,11 +178,13 @@ class MusicPlayerFragment : Fragment() {
     }
 
     private fun startMusicPlayerService() : Intent {
-        val serviceIntent = Intent(context, MediaPlayerServices :: class.java)
+        val serviceIntent = Intent(context, MediaPlayerServices :: class.java).apply {
+            val currentSong = musicRack[position]
+            putExtra("name", currentSong.songName)
+            putExtra("artist", currentSong.artistInfo)
+        }
         return serviceIntent
     }
-
-
 
     override fun onDestroy() {
         super.onDestroy()

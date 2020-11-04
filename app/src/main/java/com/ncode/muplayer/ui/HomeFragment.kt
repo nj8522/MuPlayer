@@ -25,7 +25,6 @@ import kotlin.math.log
 class HomeFragment : Fragment(), MediaPlayerContract.MediaPlayerView {
 
     lateinit var recyclerView: RecyclerView
-    private var songDataList : MutableList<MusicPlayerModel> = mutableListOf()
 
     //Presenter
     private var presenter : MediaPlayerPresenter? = null
@@ -58,6 +57,7 @@ class HomeFragment : Fragment(), MediaPlayerContract.MediaPlayerView {
 
     override fun initView() {
       try {
+
           if(!presenter!!.getSize()) {
               presenter?.retrieveSongFromProvider()
           }

@@ -14,12 +14,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".MediaPLayerWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/media_p_layer_widget_info" />
+        </receiver>
+
         <provider
             android:name=".provider.MediaPlayerContentDatabase"
             android:authorities="com.media.muplayer.provider"
             android:enabled="true"
-            android:exported="true">
-        </provider>
+            android:exported="true"></provider>
 
         <activity
             android:name=".MuPlayerActivity"
