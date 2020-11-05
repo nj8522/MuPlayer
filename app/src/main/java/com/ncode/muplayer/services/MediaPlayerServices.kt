@@ -4,8 +4,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
-import android.content.Intent
+import android.content.*
 import android.media.MediaPlayer
 import android.os.Binder
 import android.os.IBinder
@@ -14,6 +13,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
+import com.ncode.muplayer.presenter.MediaPlayerPresenter
 import com.ncode.muplayer.ui.MusicPlayerFragment
 
 class MediaPlayerServices : Service() {
@@ -24,6 +24,9 @@ class MediaPlayerServices : Service() {
 
     lateinit var mediaPlayer : MediaPlayer
 
+    lateinit var mediaPlayerPresenter: MediaPlayerPresenter
+
+    private val MEDIA_TO_SERVICE = "WIDGET_DATA"
 
 
     //Channel
@@ -33,9 +36,29 @@ class MediaPlayerServices : Service() {
     //Notification
     var notification: Notification? = null
 
-    private val intent = Intent()
-    val songName = intent.getStringExtra("name")
-    val artist = intent.getStringExtra("artist")
+    private var songName = ""
+    private var artist = ""
+
+
+    val mediaReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            songName = intent?.extras?.getString("song")!!
+            artist = intent?.extras?.getString("artist")!!
+            Log.i(TAG, "onReceive: $songName, $artist")
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        registerBroadCastReceiver()
+        mediaPlayerPresenter = MediaPlayerPresenter(this)
+    }
+
+    private fun registerBroadCastReceiver() {
+        val filter = IntentFilter(MEDIA_TO_SERVICE)
+        registerReceiver(mediaReceiver, filter)
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return playerBinder
@@ -51,17 +74,20 @@ class MediaPlayerServices : Service() {
            mediaPlayer.setDataSource(songPath)
            mediaPlayer.prepare()
            mediaPlayer.start()
+
        } catch (e : Exception) {
            mediaPlayer.stop()
        }
+
+
    }
+
 
     fun pauseMusic() {
 
         if(mediaPlayer.isPlaying) {
            mediaPlayer.pause()
-
-       }
+        }
     }
 
     fun mediaPlayerSeekTo(position : Int) {
@@ -69,8 +95,7 @@ class MediaPlayerServices : Service() {
     }
 
     fun trackSeekBar() : Int {
-     
-     return mediaPlayer.currentPosition
+        return mediaPlayer.currentPosition
    }
 
    fun trackMaxLength() : Int {
@@ -88,10 +113,7 @@ class MediaPlayerServices : Service() {
 
         notification = buildNavigationNotifier()
         startForeground(1245, notification)
-
         controlMusicUsingWidget()
-
-
         return START_STICKY
     }
 
@@ -99,7 +121,7 @@ class MediaPlayerServices : Service() {
 
         val view = RemoteViews(packageName, R.layout.media_p_layer_widget)
 
-        if(mediaPlayer != null) {
+        if(mediaPlayer.isPlaying) {
 
             view.setTextViewText(R.id.widget_song_title, songName)
             view.setTextViewText(R.id.widget_song_artist, artist)
@@ -140,6 +162,7 @@ class MediaPlayerServices : Service() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
+        unregisterReceiver(mediaReceiver)
     }
 
     inner class MediaPlayerBinder : Binder() {

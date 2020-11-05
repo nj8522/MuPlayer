@@ -29,6 +29,8 @@ class MusicPlayerFragment : Fragment() {
 
     private val TAG = "pos"
 
+    private val MEDIA_TO_SERVICE = "WIDGET_DATA"
+
     private lateinit var mediaTackPath : String
     private var position : Int = 0
 
@@ -120,7 +122,15 @@ class MusicPlayerFragment : Fragment() {
         mediaTackPath = currentSong.path
     }
 
-    private fun tackCurrentSong() {}
+    fun tackCurrentSong() : List<String>{
+
+        val current = musicRack[position]
+        val songName = current.songName
+        val artistName = current.artistInfo
+        val playerList : List<String> = listOf(songName, artistName)
+        Log.i(TAG, "tackCurrentSong: $playerList[0]")
+        return playerList
+    }
 
     private fun changeStateOfThePlayer() {
 
@@ -138,6 +148,22 @@ class MusicPlayerFragment : Fragment() {
 
         initializeSeekBar()
         trackSeekBar()
+        sendMediaBroadCast()
+    }
+
+    private fun sendMediaBroadCast() {
+
+        val current = musicRack[position]
+        val songName = current.songName
+        val artistName = current.artistInfo
+
+        val mediaIntent = Intent().apply {
+            putExtra("song", songName)
+            putExtra("artist", artistName)
+        }
+
+        mediaIntent.action = MEDIA_TO_SERVICE
+        context?.sendBroadcast(mediaIntent)
     }
 
     private fun playPreviousSong() {
@@ -178,11 +204,7 @@ class MusicPlayerFragment : Fragment() {
     }
 
     private fun startMusicPlayerService() : Intent {
-        val serviceIntent = Intent(context, MediaPlayerServices :: class.java).apply {
-            val currentSong = musicRack[position]
-            putExtra("name", currentSong.songName)
-            putExtra("artist", currentSong.artistInfo)
-        }
+        val serviceIntent = Intent(context, MediaPlayerServices :: class.java)
         return serviceIntent
     }
 
