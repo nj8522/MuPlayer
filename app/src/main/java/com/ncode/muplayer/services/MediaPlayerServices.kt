@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
 import com.ncode.muplayer.presenter.MediaPlayerPresenter
@@ -22,12 +23,9 @@ class MediaPlayerServices : Service() {
 
     private val playerBinder = MediaPlayerBinder()
 
-    lateinit var mediaPlayer : MediaPlayer
-
-    lateinit var mediaPlayerPresenter: MediaPlayerPresenter
+    private lateinit var mediaPlayer : MediaPlayer
 
     private val MEDIA_TO_SERVICE = "WIDGET_DATA"
-
 
     //Channel
     val CHANNEL_ID = "MuPlayer_Channel"
@@ -51,13 +49,13 @@ class MediaPlayerServices : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        mediaPlayer = MediaPlayer()
         registerBroadCastReceiver()
-        mediaPlayerPresenter = MediaPlayerPresenter(this)
     }
 
     private fun registerBroadCastReceiver() {
         val filter = IntentFilter(MEDIA_TO_SERVICE)
-        registerReceiver(mediaReceiver, filter)
+        LocalBroadcastManager.getInstance(this).registerReceiver(mediaReceiver, filter)
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -70,7 +68,7 @@ class MediaPlayerServices : Service() {
        Log.i(TAG, "playMusic: playing")
 
        try {
-           mediaPlayer = MediaPlayer()
+
            mediaPlayer.setDataSource(songPath)
            mediaPlayer.prepare()
            mediaPlayer.start()
@@ -78,9 +76,7 @@ class MediaPlayerServices : Service() {
        } catch (e : Exception) {
            mediaPlayer.stop()
        }
-
-
-   }
+    }
 
 
     fun pauseMusic() {
@@ -95,12 +91,19 @@ class MediaPlayerServices : Service() {
     }
 
     fun trackSeekBar() : Int {
+        Log.i(TAG, "trackSeekBar: ${mediaPlayer.currentPosition}")
         return mediaPlayer.currentPosition
    }
 
    fun trackMaxLength() : Int {
        return  mediaPlayer.duration
    }
+
+   fun mediaPlayerStatus() : Boolean {
+       if(mediaPlayer.isPlaying) { return true }
+       return false
+   }
+
 
     private fun playPreviousMusic(): PendingIntent? { return null}
 
@@ -162,7 +165,7 @@ class MediaPlayerServices : Service() {
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
-        unregisterReceiver(mediaReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mediaReceiver)
     }
 
     inner class MediaPlayerBinder : Binder() {

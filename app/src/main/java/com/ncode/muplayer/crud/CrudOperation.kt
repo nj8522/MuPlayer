@@ -19,15 +19,26 @@ class CrudOperation (val context : Context) {
 
         val allSongsDataFromLocalDb : MutableList<MusicPlayerModel> = mutableListOf()
 
-        val cursor : Cursor? = context.contentResolver.query(MediaPlayerContentDatabase.CONTENT_URI,
-            null,
-            null,
-            null,
-            null)
+        var cursor : Cursor? = null
+
+            try {
+
+                cursor = context.contentResolver.query(MediaPlayerContentDatabase.CONTENT_URI,
+                    null,
+                    null,
+                    null,
+                    null)
+
+
+            } catch (e : Exception) {
+                return allSongsDataFromLocalDb
+            }
+
+
 
         Log.i("content", cursor!!.count.toString())
 
-       cursor!!.moveToFirst()
+       cursor.moveToFirst()
 
         try {
 

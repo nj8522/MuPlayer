@@ -16,7 +16,6 @@ import android.widget.Button
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
 import com.ncode.muplayer.R
 import com.ncode.muplayer.models.MusicPlayerModel
 import com.ncode.muplayer.presenter.MediaPlayerPresenter
@@ -32,7 +31,7 @@ class MusicPlayerFragment : Fragment() {
     private val MEDIA_TO_SERVICE = "WIDGET_DATA"
 
     private lateinit var mediaTackPath : String
-    private var position : Int = 0
+    private var songPosition : Int = 0
 
     //Services
     var mediaService : MediaPlayerServices? = null
@@ -52,6 +51,11 @@ class MusicPlayerFragment : Fragment() {
     private lateinit var songName : TextView
     private lateinit var artistName : TextView
 
+    //Seek Position
+    var mediaPlayerPosition = 0
+
+
+    //Set Up Connection With Service
     private val setUpConnectionWithService = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as MediaPlayerServices.MediaPlayerBinder
@@ -68,8 +72,8 @@ class MusicPlayerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        position = arguments?.getInt("position")!!
-        Log.i(TAG, position.toString())
+        songPosition = arguments?.getInt("position")!!
+        Log.i(TAG, songPosition.toString())
 
        mediaPlayerPresenter = MediaPlayerPresenter(context!!)
        musicRack = mediaPlayerPresenter.getAllSongs()
@@ -114,7 +118,7 @@ class MusicPlayerFragment : Fragment() {
     private fun getAllSongsList(songsPlayList : List<MusicPlayerModel>) {
 
         //musicRack  = songsPlayList
-        val currentSong = songsPlayList[position]
+        val currentSong = songsPlayList[songPosition]
         Log.i(TAG, "getAllSongsList: ${currentSong.songName}")
 
         songName.text = currentSong.songName
@@ -122,15 +126,6 @@ class MusicPlayerFragment : Fragment() {
         mediaTackPath = currentSong.path
     }
 
-    fun tackCurrentSong() : List<String>{
-
-        val current = musicRack[position]
-        val songName = current.songName
-        val artistName = current.artistInfo
-        val playerList : List<String> = listOf(songName, artistName)
-        Log.i(TAG, "tackCurrentSong: $playerList[0]")
-        return playerList
-    }
 
     private fun changeStateOfThePlayer() {
 
@@ -144,6 +139,7 @@ class MusicPlayerFragment : Fragment() {
             playPauseAction = true
             playPauseButton.setBackgroundResource(R.drawable.play_button)
             mediaService?.pauseMusic()
+            mediaPlayerPosition = mediaService!!.trackSeekBar()
         }
 
         initializeSeekBar()
@@ -153,17 +149,24 @@ class MusicPlayerFragment : Fragment() {
 
     private fun sendMediaBroadCast() {
 
-        val current = musicRack[position]
-        val songName = current.songName
-        val artistName = current.artistInfo
+        try {
 
-        val mediaIntent = Intent().apply {
-            putExtra("song", songName)
-            putExtra("artist", artistName)
+            val current = musicRack[songPosition]
+            val songName = current.songName
+            val artistName = current.artistInfo
+
+            val mediaIntent = Intent().apply {
+                putExtra("song", songName)
+                putExtra("artist", artistName)
+            }
+
+            mediaIntent.action = MEDIA_TO_SERVICE
+            context?.sendBroadcast(mediaIntent)
+
+        } catch ( e : Exception) {
+            e.printStackTrace()
         }
 
-        mediaIntent.action = MEDIA_TO_SERVICE
-        context?.sendBroadcast(mediaIntent)
     }
 
     private fun playPreviousSong() {
@@ -191,16 +194,25 @@ class MusicPlayerFragment : Fragment() {
         playerSeekBar.max = mediaService!!.trackMaxLength()
 
         val handler = Handler()
-        handler.postDelayed(object  : Runnable{
-            override fun run() {
-                try {
-                   playerSeekBar.progress = mediaService!!.trackSeekBar()
-                   handler.postDelayed(this, 500)
-                }catch (e : Exception) {
-                   playerSeekBar.progress = 0
+
+
+
+
+            handler.postDelayed(object  : Runnable{
+                override fun run() {
+                    try {
+                        while (songPosition < mediaService!!.trackMaxLength()) {
+                            songPosition += 1000
+                            playerSeekBar.progress = mediaPlayerPosition
+                            handler.postDelayed(this, 500)
+                        }
+
+                    } catch (e : Exception) {
+                        playerSeekBar.progress = mediaPlayerPosition
+                        mediaService?.mediaPlayerSeekTo(mediaPlayerPosition)
+                    }
                 }
-            }
-        },0)
+            },0)
     }
 
     private fun startMusicPlayerService() : Intent {
