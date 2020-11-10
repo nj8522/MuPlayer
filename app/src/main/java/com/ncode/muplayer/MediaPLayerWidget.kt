@@ -35,6 +35,10 @@ class MediaPLayerWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
     }
+
+
+
+
 }
 
 internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
@@ -42,6 +46,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.media_p_layer_widget)
 
+    views.setProgressBar(R.id.widget_progress_bar, 100, 50, false)
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)

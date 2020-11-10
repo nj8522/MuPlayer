@@ -14,22 +14,20 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
-import com.ncode.muplayer.presenter.MediaPlayerPresenter
 import com.ncode.muplayer.ui.MusicPlayerFragment
 
 class MediaPlayerServices : Service() {
 
-    private val TAG = "media"
+    private val TAG = "service_media"
 
     private val playerBinder = MediaPlayerBinder()
 
-    private lateinit var mediaPlayer : MediaPlayer
+    private lateinit var mediaPlayer: MediaPlayer
 
     private val MEDIA_TO_SERVICE = "WIDGET_DATA"
 
     //Channel
     val CHANNEL_ID = "MuPlayer_Channel"
-
 
     //Notification
     var notification: Notification? = null
@@ -37,12 +35,17 @@ class MediaPlayerServices : Service() {
     private var songName = ""
     private var artist = ""
 
+    //Media Player Status
+    var isPlaying = false
+    var wasPlaying = false
+    var mediaPlayerPosition = 0
 
-    val mediaReceiver = object : BroadcastReceiver() {
+
+    private val mediaReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
             songName = intent?.extras?.getString("song")!!
-            artist = intent?.extras?.getString("artist")!!
+            artist = intent.extras?.getString("artist")!!
             Log.i(TAG, "onReceive: $songName, $artist")
         }
     }
@@ -55,68 +58,91 @@ class MediaPlayerServices : Service() {
 
     private fun registerBroadCastReceiver() {
         val filter = IntentFilter(MEDIA_TO_SERVICE)
-        LocalBroadcastManager.getInstance(this).registerReceiver(mediaReceiver, filter)
+        registerReceiver(mediaReceiver, filter)
+        Log.i(TAG, "onReceive: Intent Filter Done")
     }
+
 
     override fun onBind(intent: Intent?): IBinder? {
         return playerBinder
-     }
+    }
 
 
-    fun playMusic(songPath : String) {
+    fun playMusic(songPath: String) {
 
-       Log.i(TAG, "playMusic: playing")
+        Log.i(TAG, "playMusic: playing")
 
-       try {
+        try {
 
-           mediaPlayer.setDataSource(songPath)
-           mediaPlayer.prepare()
-           mediaPlayer.start()
+            if (wasPlaying) {
+                mediaPlayer.seekTo(mediaPlayerPosition)
+                mediaPlayer.start()
+                wasPlaying = false
+            } else {
+                mediaPlayer.setDataSource(songPath)
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+            }
 
-       } catch (e : Exception) {
-           mediaPlayer.stop()
-       }
+            isPlaying = true
+            controlMusicUsingWidget()
+
+        } catch (e: Exception) {
+            mediaPlayer.stop()
+            isPlaying = false
+        }
     }
 
 
     fun pauseMusic() {
 
-        if(mediaPlayer.isPlaying) {
-           mediaPlayer.pause()
+        if (mediaPlayer.isPlaying) {
+            mediaPlayerPosition = mediaPlayer.currentPosition
+            mediaPlayer.pause()
+            wasPlaying = true
+            isPlaying = false
         }
+
+        controlMusicUsingWidget()
     }
 
-    fun mediaPlayerSeekTo(position : Int) {
+    fun mediaPlayerSeekTo(position: Int) {
         mediaPlayer.seekTo(position)
+        mediaPlayerPosition = position
     }
 
-    fun trackSeekBar() : Int {
+    fun trackSeekBar(): Int {
         Log.i(TAG, "trackSeekBar: ${mediaPlayer.currentPosition}")
         return mediaPlayer.currentPosition
-   }
+    }
 
-   fun trackMaxLength() : Int {
-       return  mediaPlayer.duration
-   }
+    fun trackMaxLength(): Int {
+        return mediaPlayer.duration
+    }
 
-   fun mediaPlayerStatus() : Boolean {
-       if(mediaPlayer.isPlaying) { return true }
-       return false
-   }
+    fun mediaPlayerStatus(): Boolean {
+        if (mediaPlayer.isPlaying) {
+            return true
+        }
+        return false
+    }
 
+    private fun playPreviousMusic(): PendingIntent? {
+        return null
+    }
 
-    private fun playPreviousMusic(): PendingIntent? { return null}
+    private fun playNextMusic(): PendingIntent? {
+        return null
+    }
 
-    private fun playNextMusic() : PendingIntent? { return null }
-
-    private fun playCurrentMusic() : PendingIntent? { return null }
-
+    private fun playCurrentMusic(): PendingIntent? {
+        return null
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        notification = buildNavigationNotifier()
-        startForeground(1245, notification)
-        controlMusicUsingWidget()
+        /*notification = buildNavigationNotifier()
+        startForeground(1245, notification)*/
         return START_STICKY
     }
 
@@ -124,26 +150,29 @@ class MediaPlayerServices : Service() {
 
         val view = RemoteViews(packageName, R.layout.media_p_layer_widget)
 
-        if(mediaPlayer.isPlaying) {
+        if (isPlaying) {
 
             view.setTextViewText(R.id.widget_song_title, songName)
             view.setTextViewText(R.id.widget_song_artist, artist)
             view.setImageViewResource(R.id.widget_play_pause, R.drawable.pause_button_image)
         } else {
+            view.setTextViewText(R.id.widget_song_title, "")
+            view.setTextViewText(R.id.widget_song_artist, "")
             view.setImageViewResource(R.id.widget_play_pause, R.drawable.play_arrow)
         }
 
-        val mediaPlayerWidget = ComponentName(this, MediaPLayerWidget :: class.java)
+        val mediaPlayerWidget = ComponentName(this, MediaPLayerWidget::class.java)
         val manger = AppWidgetManager.getInstance(this)
         manger.updateAppWidget(mediaPlayerWidget, view)
     }
 
 
-    private fun buildNavigationNotifier() : Notification? {
+    private fun buildNavigationNotifier(): Notification? {
 
-       val pendingIntent = Intent(this, MusicPlayerFragment :: class.java).let { notificationIntent ->
-           PendingIntent.getActivity(this, 0, notificationIntent, 0)
-       }
+        val pendingIntent =
+            Intent(this, MusicPlayerFragment::class.java).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            }
 
         notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -151,25 +180,26 @@ class MediaPlayerServices : Service() {
             .addAction(R.drawable.notification_previous_media, "Previous", playPreviousMusic())
             .addAction(R.drawable.notification_play_media, "Play", playCurrentMusic())
             .addAction(R.drawable.notification_next_media, "Next", playNextMusic())
-            .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(1 /* #1: pause button \*/))
+            .setStyle(
+                androidx.media.app.NotificationCompat.MediaStyle()
+                    .setShowActionsInCompactView(1 /* #1: pause button \*/)
+            )
             .setContentTitle("MuPlayer")
             .setContentText("Playing")
             .setContentIntent(pendingIntent)
             .build()
 
-      return notification
+        return notification
     }
-
 
     override fun onDestroy() {
         super.onDestroy()
         mediaPlayer.release()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mediaReceiver)
+        unregisterReceiver(mediaReceiver)
     }
 
     inner class MediaPlayerBinder : Binder() {
-        fun getBinderData() : MediaPlayerServices{
+        fun getBinderData(): MediaPlayerServices {
             return this@MediaPlayerServices
         }
     }

@@ -29,6 +29,15 @@
         android:layout_marginBottom="2dp"
         android:textColor="@color/colorAccent"/>
 
+
+    <ProgressBar
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:id="@+id/widget_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginEnd="52dp" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
