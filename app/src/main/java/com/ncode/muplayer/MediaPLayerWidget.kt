@@ -6,7 +6,9 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.core.os.HandlerCompat.postDelayed
 import com.ncode.muplayer.services.MediaPlayerServices
+import java.util.logging.Handler
 
 /**
  * Implementation of App Widget functionality.
@@ -35,19 +37,14 @@ class MediaPLayerWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
     }
-
-
-
-
 }
 
 internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-    val widgetText = context.getString(R.string.appwidget_text)
+
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.media_p_layer_widget)
-
-    views.setProgressBar(R.id.widget_progress_bar, 100, 50, false)
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
 }
+

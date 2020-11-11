@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetManager
 import android.content.*
 import android.media.MediaPlayer
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
@@ -15,6 +16,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
 import com.ncode.muplayer.ui.MusicPlayerFragment
+import kotlinx.coroutines.*
+import java.lang.Runnable
 
 class MediaPlayerServices : Service() {
 
@@ -39,6 +42,13 @@ class MediaPlayerServices : Service() {
     var isPlaying = false
     var wasPlaying = false
     var mediaPlayerPosition = 0
+
+    //Handler
+    val handler = Handler()
+
+    //Coroutine
+    var scope = CoroutineScope(Dispatchers.IO)
+
 
 
     private val mediaReceiver = object : BroadcastReceiver() {
@@ -78,6 +88,7 @@ class MediaPlayerServices : Service() {
                 mediaPlayer.seekTo(mediaPlayerPosition)
                 mediaPlayer.start()
                 wasPlaying = false
+
             } else {
                 mediaPlayer.setDataSource(songPath)
                 mediaPlayer.prepare()
@@ -149,23 +160,64 @@ class MediaPlayerServices : Service() {
     private fun controlMusicUsingWidget() {
 
         val view = RemoteViews(packageName, R.layout.media_p_layer_widget)
+        val mediaPlayerWidget = ComponentName(this, MediaPLayerWidget::class.java)
+        val manger = AppWidgetManager.getInstance(this)
+
 
         if (isPlaying) {
 
             view.setTextViewText(R.id.widget_song_title, songName)
             view.setTextViewText(R.id.widget_song_artist, artist)
             view.setImageViewResource(R.id.widget_play_pause, R.drawable.pause_button_image)
+
         } else {
-            view.setTextViewText(R.id.widget_song_title, "")
-            view.setTextViewText(R.id.widget_song_artist, "")
+
+            view.setTextViewText(R.id.widget_song_title, "Song")
+            view.setTextViewText(R.id.widget_song_artist, "Artist")
+            view.setProgressBar(R.id.widget_progress_bar, 100, 0, false)
             view.setImageViewResource(R.id.widget_play_pause, R.drawable.play_arrow)
         }
 
-        val mediaPlayerWidget = ComponentName(this, MediaPLayerWidget::class.java)
-        val manger = AppWidgetManager.getInstance(this)
+
+        updateProgressBar(view, manger, mediaPlayerWidget)
         manger.updateAppWidget(mediaPlayerWidget, view)
     }
 
+    private fun updateProgressBar(view : RemoteViews, manger : AppWidgetManager, mediaWidget : ComponentName) {
+
+        if(isPlaying) {
+
+            scope.launch {
+
+                handler.postDelayed(object  : Runnable{
+                    override fun run() {
+                        view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
+                        manger.updateAppWidget(mediaWidget, view)
+                    }
+                }, 0)
+            }
+
+        } else {
+
+            if(wasPlaying){
+                view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
+            } else {
+                scope.cancel()
+                view.setProgressBar(R.id.widget_progress_bar, 100, 0, false)
+            }
+        }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+
+        mediaPlayer.stop()
+        mediaPlayer.release()
+        scope.cancel()
+        isPlaying = false
+        controlMusicUsingWidget()
+        unregisterReceiver(mediaReceiver)
+    }
 
     private fun buildNavigationNotifier(): Notification? {
 
@@ -194,6 +246,7 @@ class MediaPlayerServices : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        mediaPlayer.stop()
         mediaPlayer.release()
         unregisterReceiver(mediaReceiver)
     }

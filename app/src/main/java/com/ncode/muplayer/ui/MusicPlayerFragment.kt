@@ -58,6 +58,9 @@ class MusicPlayerFragment : Fragment() {
     //Song Position
     var currentSong = 0
 
+    //Handler
+    val handler = Handler()
+
 
     //Set Up Connection With Service
     private val setUpConnectionWithService = object : ServiceConnection {
@@ -144,8 +147,8 @@ class MusicPlayerFragment : Fragment() {
         } else {
 
             playPauseButton.setBackgroundResource(R.drawable.pause_button)
-            mediaService?.playMusic(mediaTackPath)
             sendMediaBroadCast()
+            mediaService?.playMusic(mediaTackPath)
         }
 
         initializeSeekBar()
@@ -196,8 +199,6 @@ class MusicPlayerFragment : Fragment() {
     private fun initializeSeekBar() {
 
         playerSeekBar.max = mediaService!!.trackMaxLength()
-
-        val handler = Handler()
 
         handler.postDelayed(object  : Runnable{
                 override fun run() {
