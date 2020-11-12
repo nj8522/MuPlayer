@@ -22,7 +22,7 @@ import com.ncode.muplayer.presenter.MediaPlayerPresenter
 import com.ncode.muplayer.services.MediaPlayerServices
 import kotlinx.android.synthetic.main.fragment_music_player.*
 import java.lang.Exception
-import kotlin.math.log
+import java.util.*
 
 
 class MusicPlayerFragment : Fragment() {
@@ -44,7 +44,7 @@ class MusicPlayerFragment : Fragment() {
     private var musicRack : List<MusicPlayerModel> = listOf()
 
     //Presenter
-    lateinit var mediaPlayerPresenter: MediaPlayerPresenter
+    private lateinit var mediaPlayerPresenter : MediaPlayerPresenter
 
     //UI
     private lateinit var playPauseButton : Button
@@ -60,6 +60,7 @@ class MusicPlayerFragment : Fragment() {
 
     //Handler
     val handler = Handler()
+    private val timer = Timer()
 
 
     //Set Up Connection With Service
@@ -142,6 +143,7 @@ class MusicPlayerFragment : Fragment() {
 
             playPauseButton.setBackgroundResource(R.drawable.play_button)
             mediaService?.pauseMusic()
+
             mediaPlayerPosition = mediaService!!.trackSeekBar()
 
         } else {
@@ -149,6 +151,7 @@ class MusicPlayerFragment : Fragment() {
             playPauseButton.setBackgroundResource(R.drawable.pause_button)
             sendMediaBroadCast()
             mediaService?.playMusic(mediaTackPath)
+            playerSeekBar.max = mediaService!!.trackMaxLength()
         }
 
         initializeSeekBar()
@@ -198,32 +201,25 @@ class MusicPlayerFragment : Fragment() {
 
     private fun initializeSeekBar() {
 
-        playerSeekBar.max = mediaService!!.trackMaxLength()
 
-        handler.postDelayed(object  : Runnable{
+        if(mediaService!!.isPlaying) {
+
+            timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    try {
-                        while (songPosition < mediaService!!.trackMaxLength()) {
-                            songPosition += 1000
-                            playerSeekBar.progress = mediaPlayerPosition
-                            handler.postDelayed(this, 500)
-                        }
-
-                    } catch (e : Exception) {
-                        playerSeekBar.progress = mediaPlayerPosition
-                        mediaService?.mediaPlayerSeekTo(mediaPlayerPosition)
-                    }
+                    Log.i(TAG, "run: ${mediaService!!.getCurrentPosition()}")
+                    playerSeekBar.progress = mediaService!!.getCurrentPosition()
                 }
-            },0)
+            }, 0, 100)
+        }
     }
 
     private fun startMusicPlayerService() : Intent {
-        val serviceIntent = Intent(context, MediaPlayerServices :: class.java)
-        return serviceIntent
+        return Intent(context, MediaPlayerServices :: class.java)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        timer.cancel()
         activity?.stopService(startMusicPlayerService())
     }
 

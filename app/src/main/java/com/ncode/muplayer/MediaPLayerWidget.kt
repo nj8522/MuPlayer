@@ -20,6 +20,11 @@ class MediaPLayerWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
+
+             if(appWidgetId == R.id.widget_progress_bar) {
+                 updateAppWidget(context, appWidgetManager, appWidgetId)
+             }
+
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
 

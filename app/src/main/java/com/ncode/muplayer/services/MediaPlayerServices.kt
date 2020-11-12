@@ -12,12 +12,12 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
 import com.ncode.muplayer.ui.MusicPlayerFragment
 import kotlinx.coroutines.*
 import java.lang.Runnable
+import java.util.*
 
 class MediaPlayerServices : Service() {
 
@@ -45,6 +45,7 @@ class MediaPlayerServices : Service() {
 
     //Handler
     val handler = Handler()
+    val timer = Timer()
 
     //Coroutine
     var scope = CoroutineScope(Dispatchers.IO)
@@ -138,6 +139,10 @@ class MediaPlayerServices : Service() {
         return false
     }
 
+    fun getCurrentPosition() : Int{
+        return mediaPlayer.currentPosition
+    }
+
     private fun playPreviousMusic(): PendingIntent? {
         return null
     }
@@ -185,17 +190,16 @@ class MediaPlayerServices : Service() {
 
     private fun updateProgressBar(view : RemoteViews, manger : AppWidgetManager, mediaWidget : ComponentName) {
 
+        val duration = mediaPlayer.duration
+
         if(isPlaying) {
 
-            scope.launch {
-
-                handler.postDelayed(object  : Runnable{
-                    override fun run() {
-                        view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
-                        manger.updateAppWidget(mediaWidget, view)
-                    }
-                }, 0)
-            }
+            timer.scheduleAtFixedRate(object : TimerTask() {
+                override fun run() {
+                    view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
+                    manger.updateAppWidget(mediaWidget, view)
+                }
+            }, 0, 10000)
 
         } else {
 
@@ -249,6 +253,11 @@ class MediaPlayerServices : Service() {
         mediaPlayer.stop()
         mediaPlayer.release()
         unregisterReceiver(mediaReceiver)
+    }
+
+    suspend fun updateProgressBar() {
+
+
     }
 
     inner class MediaPlayerBinder : Binder() {
