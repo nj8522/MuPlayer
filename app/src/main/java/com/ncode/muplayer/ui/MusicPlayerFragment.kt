@@ -17,6 +17,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import com.ncode.muplayer.R
+import com.ncode.muplayer.helper.SongFetchHelper
 import com.ncode.muplayer.models.MusicPlayerModel
 import com.ncode.muplayer.presenter.MediaPlayerPresenter
 import com.ncode.muplayer.services.MediaPlayerServices
@@ -55,11 +56,7 @@ class MusicPlayerFragment : Fragment() {
     //Seek Position
     var mediaPlayerPosition = 0
 
-    //Song Position
-    var currentSong = 0
-
-    //Handler
-    val handler = Handler()
+    //Timer
     private val timer = Timer()
 
 
@@ -81,7 +78,11 @@ class MusicPlayerFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         songPosition = arguments?.getInt("position")!!
-        Log.i(TAG, songPosition.toString())
+        Log.i(TAG, "${songPosition} ${context!!} ")
+
+        val songData = SongFetchHelper().fetchSongForTheUser(songPosition, context!!)
+        Log.i(TAG, "onCreate: ${songData.songName} ${songData.path}")
+
 
        mediaPlayerPresenter = MediaPlayerPresenter(context!!)
        musicRack = mediaPlayerPresenter.getAllSongs()
@@ -133,7 +134,6 @@ class MusicPlayerFragment : Fragment() {
         songName.text = currentSong.songName
         artistName.text = currentSong.artistInfo
         mediaTackPath = currentSong.path
-
     }
 
 

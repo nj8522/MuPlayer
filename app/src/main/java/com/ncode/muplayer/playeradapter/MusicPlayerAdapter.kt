@@ -21,7 +21,6 @@ class MusicPlayerAdapter internal constructor(context: Context) : RecyclerView.A
     fun setSize(songs : List<MusicPlayerModel>) {
         this.songsList = songs as MutableList<MusicPlayerModel>
         notifyDataSetChanged()
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {

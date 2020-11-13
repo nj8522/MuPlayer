@@ -23,9 +23,11 @@ class MediaPLayerWidget : AppWidgetProvider() {
 
              if(appWidgetId == R.id.widget_progress_bar) {
                  updateAppWidget(context, appWidgetManager, appWidgetId)
+
              }
 
             updateAppWidget(context, appWidgetManager, appWidgetId)
+
         }
 
        val mediaService = Intent(context, MediaPlayerServices :: class.java)
@@ -48,6 +50,7 @@ internal fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManage
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.media_p_layer_widget)
+
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)

@@ -183,31 +183,29 @@ class MediaPlayerServices : Service() {
             view.setImageViewResource(R.id.widget_play_pause, R.drawable.play_arrow)
         }
 
-
-        updateProgressBar(view, manger, mediaPlayerWidget)
         manger.updateAppWidget(mediaPlayerWidget, view)
+        updateProgressBar(manger, view)
+
     }
 
-    private fun updateProgressBar(view : RemoteViews, manger : AppWidgetManager, mediaWidget : ComponentName) {
-
-        val duration = mediaPlayer.duration
+    private fun updateProgressBar(manager: AppWidgetManager, views: RemoteViews) {
 
         if(isPlaying) {
 
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
-                    manger.updateAppWidget(mediaWidget, view)
+                    views.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
+                    manager.updateAppWidget(R.id.widget_progress_bar, views)
                 }
-            }, 0, 10000)
+            }, 0, 100)
 
         } else {
 
             if(wasPlaying){
-                view.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
+                views.setProgressBar(R.id.widget_progress_bar, mediaPlayer.duration, mediaPlayer.currentPosition, false)
             } else {
                 scope.cancel()
-                view.setProgressBar(R.id.widget_progress_bar, 100, 0, false)
+                views.setProgressBar(R.id.widget_progress_bar, 100, 0, false)
             }
         }
     }
@@ -253,11 +251,6 @@ class MediaPlayerServices : Service() {
         mediaPlayer.stop()
         mediaPlayer.release()
         unregisterReceiver(mediaReceiver)
-    }
-
-    suspend fun updateProgressBar() {
-
-
     }
 
     inner class MediaPlayerBinder : Binder() {
