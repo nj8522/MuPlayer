@@ -7,7 +7,6 @@ import android.appwidget.AppWidgetManager
 import android.content.*
 import android.media.MediaPlayer
 import android.os.Binder
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import android.widget.RemoteViews
@@ -16,40 +15,30 @@ import com.ncode.muplayer.MediaPLayerWidget
 import com.ncode.muplayer.R
 import com.ncode.muplayer.ui.MusicPlayerFragment
 import kotlinx.coroutines.*
-import java.lang.Runnable
 import java.util.*
 
 class MediaPlayerServices : Service() {
-
-    private val TAG = "service_media"
 
     private val playerBinder = MediaPlayerBinder()
 
     private lateinit var mediaPlayer: MediaPlayer
 
-    private val MEDIA_TO_SERVICE = "WIDGET_DATA"
-
-    //Channel
-    val CHANNEL_ID = "MuPlayer_Channel"
-
     //Notification
-    var notification: Notification? = null
+    private var notification: Notification? = null
 
     private var songName = ""
     private var artist = ""
 
     //Media Player Status
     var isPlaying = false
-    var wasPlaying = false
-    var mediaPlayerPosition = 0
+    private var wasPlaying = false
+    private var mediaPlayerPosition = 0
 
-    //Handler
-    val handler = Handler()
-    val timer = Timer()
+    //Timer
+    private val timer = Timer()
 
     //Coroutine
-    var scope = CoroutineScope(Dispatchers.IO)
-
+    private var scope = CoroutineScope(Dispatchers.IO)
 
 
     private val mediaReceiver = object : BroadcastReceiver() {
@@ -257,5 +246,11 @@ class MediaPlayerServices : Service() {
         fun getBinderData(): MediaPlayerServices {
             return this@MediaPlayerServices
         }
+    }
+
+    companion object {
+        private const val TAG = "service_media"
+        private const val MEDIA_TO_SERVICE = "WIDGET_DATA"
+        private const val CHANNEL_ID = "MuPlayer_Channel"
     }
 }

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -28,18 +27,12 @@ import java.util.*
 
 class MusicPlayerFragment : Fragment() {
 
-    private val TAG = "pos"
-
-    private val MEDIA_TO_SERVICE = "WIDGET_DATA"
-
     private lateinit var mediaTackPath : String
     private var songPosition : Int = 0
 
     //Services
     var mediaService : MediaPlayerServices? = null
     var isBounded = false
-
-
 
     //Song Shelf
     private var musicRack : List<MusicPlayerModel> = listOf()
@@ -54,11 +47,10 @@ class MusicPlayerFragment : Fragment() {
     private lateinit var artistName : TextView
 
     //Seek Position
-    var mediaPlayerPosition = 0
+    private var mediaPlayerPosition = 0
 
     //Timer
     private val timer = Timer()
-
 
     //Set Up Connection With Service
     private val setUpConnectionWithService = object : ServiceConnection {
@@ -73,12 +65,11 @@ class MusicPlayerFragment : Fragment() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         songPosition = arguments?.getInt("position")!!
-        Log.i(TAG, "${songPosition} ${context!!} ")
+        Log.i(TAG, "$songPosition")
 
         val songData = SongFetchHelper().fetchSongForTheUser(songPosition, context!!)
         Log.i(TAG, "onCreate: ${songData.songName} ${songData.path}")
@@ -127,7 +118,6 @@ class MusicPlayerFragment : Fragment() {
 
     private fun getAllSongsList(songsPlayList : List<MusicPlayerModel>) {
 
-        //musicRack  = songsPlayList
         val currentSong = songsPlayList[songPosition]
         Log.i(TAG, "getAllSongsList: ${currentSong.songName}")
 
@@ -221,6 +211,11 @@ class MusicPlayerFragment : Fragment() {
         super.onDestroy()
         timer.cancel()
         activity?.stopService(startMusicPlayerService())
+    }
+
+    companion object {
+        private const val TAG = "pos"
+        private const val MEDIA_TO_SERVICE = "WIDGET_DATA"
     }
 
 }
